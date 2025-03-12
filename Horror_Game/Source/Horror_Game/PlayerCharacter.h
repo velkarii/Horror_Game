@@ -2,8 +2,10 @@
 
 #pragma once
 
+#include <Components/SpotLightComponent.h>
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "InputMappingContext.h"
 #include "InputActionValue.h"
 #include "PlayerCharacter.generated.h"
@@ -43,8 +45,18 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "EnhancedInput")
 	UInputAction* InteractAction;
 
+	UPROPERTY(EditAnywhere, Category = "EnhancedInput")
+	UInputAction* FlashlightAction;
+
+	UPROPERTY(EditAnywhere)
+	USpringArmComponent* SpringArmComp;
+
+	UPROPERTY(EditAnywhere)
+	USpotLightComponent* SpotLight;
+
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+	void Flashlight();
 	void Interact();
 
 };

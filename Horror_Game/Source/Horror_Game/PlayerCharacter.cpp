@@ -7,13 +7,27 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+bool flashlightMode = false;
+
 // Sets default values
 APlayerCharacter::APlayerCharacter()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	GetCharacterMovement()->MaxWalkSpeed = 300.f;
 
+	// Set Max Walk Speed
+	GetCharacterMovement()->MaxWalkSpeed = 300.f;
+	
+	// Set Up SpringArmComponent For Flashlight
+	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");
+	SpringArmComp->SetupAttachment(RootComponent);
+	SpringArmComp->TargetArmLength = 20.0f;
+	SpringArmComp->bEnableCameraLag = true;
+	SpringArmComp->bEnableCameraRotationLag = true;
+
+	// Setp Up Flashlight's Light And Attach it To SpringArmComp
+	SpotLight = CreateDefaultSubobject<USpotLightComponent>("SpotLight");
+	SpotLight->SetupAttachment(SpringArmComp);
 }
 
 // Called when the game starts or when spawned
@@ -27,7 +41,15 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
+	// Flashlight
+	if (flashlightMode)
+	{
+		APlayerCharacter::SpotLight->SetVisibility(1);
+	}
+	else {
+		APlayerCharacter::SpotLight->SetVisibility(0);
+	}
 }
 
 // Called to bind functionality to input
@@ -48,6 +70,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		Input->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Move);
 		Input->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
 		Input->BindAction(InteractAction, ETriggerEvent::Started, this, &APlayerCharacter::Interact);
+		Input->BindAction(FlashlightAction, ETriggerEvent::Started, this, &APlayerCharacter::Flashlight);
 	}
 }
 
@@ -69,6 +92,17 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 	const FVector2D LookAxisVector = Value.Get<FVector2D>();
 	AddControllerPitchInput(LookAxisVector.Y);
 	AddControllerYawInput(LookAxisVector.X);
+}
+
+void APlayerCharacter::Flashlight()
+{
+	if (flashlightMode)
+	{
+		flashlightMode = false;
+	}
+	else {
+		flashlightMode = true;
+	}
 }
 
 void APlayerCharacter::Interact()
