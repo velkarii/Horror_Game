@@ -16,6 +16,7 @@ class HORROR_GAME_API APlayerCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
+	
 
 protected:
 	// Called when the game starts or when spawned
@@ -27,6 +28,8 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+// Enhanced Input
 protected:
 	UPROPERTY(EditAnywhere, Category = "EnhancedInput")
 	UInputMappingContext* InputMapping;
@@ -37,6 +40,11 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "EnhancedInput")
 	UInputAction* LookAction;
 
+	UPROPERTY(EditAnywhere, Category = "EnhancedInput")
+	UInputAction* InteractAction;
+
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+	void Interact();
+
 };
