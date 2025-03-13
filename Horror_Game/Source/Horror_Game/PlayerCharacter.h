@@ -61,6 +61,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	USpotLightComponent* InnerSpotLight;
 
+	UPROPERTY(EditAnywhere, Category = "Audio")
+	USoundBase* flashlightToggle;
+
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void Flashlight();

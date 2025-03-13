@@ -5,6 +5,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Components/InputComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 bool flashlightMode = false;
@@ -27,8 +28,10 @@ APlayerCharacter::APlayerCharacter()
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");
 	SpringArmComp->SetupAttachment(Camera);
 	SpringArmComp->TargetArmLength = 20.0f;
-	SpringArmComp->bEnableCameraLag = false;
-	SpringArmComp->bEnableCameraRotationLag = false;
+	SpringArmComp->bEnableCameraLag = true;
+	SpringArmComp->CameraLagSpeed = 8.f;
+	SpringArmComp->bEnableCameraRotationLag = true;
+	SpringArmComp->CameraRotationLagSpeed = 8.f;
 
 	// Setp Up Flashlight's Light And Attach it To SpringArmComp
 	SpotLight = CreateDefaultSubobject<USpotLightComponent>("SpotLight");
@@ -108,13 +111,19 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 
 void APlayerCharacter::Flashlight()
 {
-	if (flashlightMode)
-	{
-		flashlightMode = false;
-	}
-	else {
-		flashlightMode = true;
-	}
+	FTimerHandle TimerHandle;
+	GetWorldTimerManager().SetTimer(TimerHandle, [&]()
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, flashlightToggle, APlayerCharacter::GetActorLocation());
+			if (flashlightMode)
+			{
+				flashlightMode = false;
+			}
+			else {
+				flashlightMode = true;
+			}
+		},0.3, false);
+	
 }
 
 void APlayerCharacter::Interact()
