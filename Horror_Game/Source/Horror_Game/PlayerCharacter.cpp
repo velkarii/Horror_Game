@@ -7,12 +7,38 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+bool flashlightMode = false;
+
 // Sets default values
 APlayerCharacter::APlayerCharacter()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	// Set Max Walk Speed
 	GetCharacterMovement()->MaxWalkSpeed = 300.f;
+
+	// Set Up First Person Camera
+	Camera = CreateDefaultSubobject<UCameraComponent>("Camera");
+	Camera->SetupAttachment(RootComponent);
+	Camera->bUsePawnControlRotation = true;
+	
+	// Set Up SpringArmComponent For Flashlight
+	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");
+	SpringArmComp->SetupAttachment(Camera);
+	SpringArmComp->TargetArmLength = 20.0f;
+	SpringArmComp->bEnableCameraLag = false;
+	SpringArmComp->bEnableCameraRotationLag = false;
+
+	// Setp Up Flashlight's Light And Attach it To SpringArmComp
+	SpotLight = CreateDefaultSubobject<USpotLightComponent>("SpotLight");
+	SpotLight->SetupAttachment(SpringArmComp);
+	SpotLight->OuterConeAngle = 25.f;
+
+	InnerSpotLight = CreateDefaultSubobject<USpotLightComponent>("InnerSpotLight");
+	InnerSpotLight->SetupAttachment(SpotLight);
+	InnerSpotLight->OuterConeAngle = 12.f;
+	InnerSpotLight->Intensity = 7000.f;
 
 }
 
@@ -27,7 +53,15 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
+	// Flashlight
+	if (flashlightMode)
+	{
+		APlayerCharacter::SpotLight->SetVisibility(1, 1);
+	}
+	else {
+		APlayerCharacter::SpotLight->SetVisibility(0, 1);
+	}
 }
 
 // Called to bind functionality to input
@@ -48,6 +82,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		Input->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Move);
 		Input->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
 		Input->BindAction(InteractAction, ETriggerEvent::Started, this, &APlayerCharacter::Interact);
+		Input->BindAction(FlashlightAction, ETriggerEvent::Started, this, &APlayerCharacter::Flashlight);
 	}
 }
 
@@ -69,6 +104,17 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 	const FVector2D LookAxisVector = Value.Get<FVector2D>();
 	AddControllerPitchInput(LookAxisVector.Y);
 	AddControllerYawInput(LookAxisVector.X);
+}
+
+void APlayerCharacter::Flashlight()
+{
+	if (flashlightMode)
+	{
+		flashlightMode = false;
+	}
+	else {
+		flashlightMode = true;
+	}
 }
 
 void APlayerCharacter::Interact()
