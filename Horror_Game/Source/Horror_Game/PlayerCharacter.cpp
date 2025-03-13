@@ -17,17 +17,29 @@ APlayerCharacter::APlayerCharacter()
 
 	// Set Max Walk Speed
 	GetCharacterMovement()->MaxWalkSpeed = 300.f;
+
+	// Set Up First Person Camera
+	Camera = CreateDefaultSubobject<UCameraComponent>("Camera");
+	Camera->SetupAttachment(RootComponent);
+	Camera->bUsePawnControlRotation = true;
 	
 	// Set Up SpringArmComponent For Flashlight
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");
-	SpringArmComp->SetupAttachment(RootComponent);
+	SpringArmComp->SetupAttachment(Camera);
 	SpringArmComp->TargetArmLength = 20.0f;
-	SpringArmComp->bEnableCameraLag = true;
-	SpringArmComp->bEnableCameraRotationLag = true;
+	SpringArmComp->bEnableCameraLag = false;
+	SpringArmComp->bEnableCameraRotationLag = false;
 
 	// Setp Up Flashlight's Light And Attach it To SpringArmComp
 	SpotLight = CreateDefaultSubobject<USpotLightComponent>("SpotLight");
 	SpotLight->SetupAttachment(SpringArmComp);
+	SpotLight->OuterConeAngle = 25.f;
+
+	InnerSpotLight = CreateDefaultSubobject<USpotLightComponent>("InnerSpotLight");
+	InnerSpotLight->SetupAttachment(SpotLight);
+	InnerSpotLight->OuterConeAngle = 12.f;
+	InnerSpotLight->Intensity = 7000.f;
+
 }
 
 // Called when the game starts or when spawned
@@ -46,9 +58,11 @@ void APlayerCharacter::Tick(float DeltaTime)
 	if (flashlightMode)
 	{
 		APlayerCharacter::SpotLight->SetVisibility(1);
+		APlayerCharacter::InnerSpotLight->SetVisibility(1);
 	}
 	else {
 		APlayerCharacter::SpotLight->SetVisibility(0);
+		APlayerCharacter::InnerSpotLight->SetVisibility(0);
 	}
 }
 

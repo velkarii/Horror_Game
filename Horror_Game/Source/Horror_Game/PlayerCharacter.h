@@ -3,6 +3,7 @@
 #pragma once
 
 #include <Components/SpotLightComponent.h>
+#include <Camera/CameraComponent.h>
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -49,10 +50,16 @@ protected:
 	UInputAction* FlashlightAction;
 
 	UPROPERTY(EditAnywhere)
+	UCameraComponent* Camera;
+
+	UPROPERTY(EditAnywhere)
 	USpringArmComponent* SpringArmComp;
 
 	UPROPERTY(EditAnywhere)
 	USpotLightComponent* SpotLight;
+
+	UPROPERTY(EditAnywhere)
+	USpotLightComponent* InnerSpotLight;
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
