@@ -57,12 +57,10 @@ void APlayerCharacter::Tick(float DeltaTime)
 	// Flashlight
 	if (flashlightMode)
 	{
-		APlayerCharacter::SpotLight->SetVisibility(1);
-		APlayerCharacter::InnerSpotLight->SetVisibility(1);
+		APlayerCharacter::SpotLight->SetVisibility(1, 1);
 	}
 	else {
-		APlayerCharacter::SpotLight->SetVisibility(0);
-		APlayerCharacter::InnerSpotLight->SetVisibility(0);
+		APlayerCharacter::SpotLight->SetVisibility(0, 1);
 	}
 }
 
