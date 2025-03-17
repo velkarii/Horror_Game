@@ -50,6 +50,9 @@ protected:
 	UInputAction* FlashlightAction;
 
 	UPROPERTY(EditAnywhere)
+	USoundBase* FlashlightToggle;
+
+	UPROPERTY(EditAnywhere)
 	UCameraComponent* Camera;
 
 	UPROPERTY(EditAnywhere)
