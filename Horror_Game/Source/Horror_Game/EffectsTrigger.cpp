@@ -2,13 +2,29 @@
 
 
 #include "EffectsTrigger.h"
-
+#include "GameFramework/Character.h"
 // Sets default values
 AEffectsTrigger::AEffectsTrigger()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+ //	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	//PrimaryActorTick.bCanEverTick = true;
+    TriggerBox = CreateDefaultSubobject<UBoxComponent>(TEXT("TriggerBox"));
+    RootComponent = TriggerBox;
+    TriggerBox->SetBoxExtent(FVector(200.f, 200.f, 200.f)); // Adjust size
 
+    TriggerBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+    TriggerBox->SetCollisionResponseToAllChannels(ECR_Ignore);
+    TriggerBox->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+
+    HorrorArtifact = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HorrorArtifact"));
+    HorrorArtifact->SetupAttachment(RootComponent);
+    HorrorArtifact->SetVisibility(false); // Hide at start
+
+    AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
+    AudioComponent->SetupAttachment(RootComponent);
+    AudioComponent->bAutoActivate = false; // Don't play automatically
+
+    TriggerBox->OnComponentBeginOverlap.AddDynamic(this, &AEffectsTrigger::OnOverlapBegin);
 }
 
 // Called when the game starts or when spawned
@@ -25,3 +41,30 @@ void AEffectsTrigger::Tick(float DeltaTime)
 
 }
 
+void AEffectsTrigger::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+    bool bFromSweep, const FHitResult& SweepResult)
+{
+    if (OtherActor && OtherActor != this)
+    {
+        ACharacter* Player = Cast<ACharacter>(OtherActor);
+        if (Player)
+        {
+            HorrorArtifact->SetVisibility(true);
+
+            if (AudioComponent && !AudioComponent->IsPlaying())
+            {
+                AudioComponent->Play();
+            }
+
+            if (CameraShakeEffect)
+            {
+                GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(CameraShakeEffect);
+            }
+
+            GetWorldTimerManager().SetTimerForNextTick([this]() {
+                HorrorArtifact->SetVisibility(false);
+            });
+        }
+    }
+}
