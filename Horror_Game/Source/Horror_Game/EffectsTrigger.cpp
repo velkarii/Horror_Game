@@ -41,6 +41,22 @@ void AEffectsTrigger::Tick(float DeltaTime)
 
 }
 
+void AEffectsTrigger::CheckIfPlayerIsLooking(ACharacter* Player)
+{
+    FVector PlayerLocation = Player->GetActorLocation();
+    FVector PlayerForward = Player->GetActorForwardVector();
+    FVector ToArtifact = (HorrorArtifact->GetComponentLocation() - PlayerLocation).GetSafeNormal();
+
+    float Dot = FVector::DotProduct(PlayerForward, ToArtifact);
+
+    // 0.98 = ~11 degrees tolerance
+    if (Dot > 0.98f)
+    {
+        HorrorArtifact->SetVisibility(false);
+    }
+}
+
+
 void AEffectsTrigger::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
     UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
     bool bFromSweep, const FHitResult& SweepResult)
@@ -62,9 +78,12 @@ void AEffectsTrigger::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor
                 GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(CameraShakeEffect);
             }
 
-            GetWorldTimerManager().SetTimerForNextTick([this]() {
-                HorrorArtifact->SetVisibility(false);
-            });
+            FTimerHandle HideTimerHandle;
+            GetWorldTimerManager().SetTimer(HideTimerHandle, [this]()
+                {
+                    HorrorArtifact->SetVisibility(false);
+                }, 3.0f, false);
+
         }
     }
 }
