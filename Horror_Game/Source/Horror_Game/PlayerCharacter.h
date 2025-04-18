@@ -32,6 +32,12 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool isBatteryDead = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool flashlightMode = false;
+
 // Enhanced Input
 protected:
 	UPROPERTY(EditAnywhere, Category = "EnhancedInput")
@@ -52,13 +58,13 @@ protected:
 	UPROPERTY(EditAnywhere)
 	USoundBase* FlashlightToggle;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UCameraComponent* Camera;
 
 	UPROPERTY(EditAnywhere)
 	USpringArmComponent* SpringArmComp;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USpotLightComponent* SpotLight;
 
 	UPROPERTY(EditAnywhere)

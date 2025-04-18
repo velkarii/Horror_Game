@@ -8,8 +8,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-bool flashlightMode = false;
-
 // Sets default values
 APlayerCharacter::APlayerCharacter()
 {
@@ -112,17 +110,21 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 
 void APlayerCharacter::Flashlight()
 {
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), FlashlightToggle, GetActorLocation());
+	
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
-		if (flashlightMode)
+		if (!isBatteryDead)
 		{
-			flashlightMode = false;
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), FlashlightToggle, GetActorLocation());
+			if (flashlightMode)
+			{
+				flashlightMode = false;
+			}
+			else {
+				flashlightMode = true;
+			}
 		}
-		else {
-			flashlightMode = true;
-		}
-		}, 0.3f, false);
+	}, 0.3f, false);
 }
 
 void APlayerCharacter::Interact()
